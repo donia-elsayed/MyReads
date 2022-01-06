@@ -1,24 +1,51 @@
-import logo from './logo.svg';
+import * as BooksAPI from './BooksAPI'
+import {Link} from "react-router-dom"
+import BookShelf from './components/BookShelf'
+import { useEffect, useState } from 'react'
 import './App.css';
 
-function App() {
+function  App() {
+  const [books, setBooks] = useState([]);
+  const updateBookShelf = (book,newShelf) =>{
+      let isFound = false;
+      const newBook = books.map((i) =>{
+       if(i.id === book.id){
+         i.shelf = newShelf;
+         isFound = true;
+       }
+      
+       return i;
+      })
+     if(!isFound){
+      newBook.push({...book,shelf:newShelf})
+     }
+     setBooks(newBook)
+     
+  }
+  
+  useEffect(()=>{
+    BooksAPI.getAll().then(data=>{
+      setBooks(data)
+    })
+  },[])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+  <>
+    <div className="list-books">
+      <div className="list-books-title">
+        <h1>MyReads</h1>
+      </div>
+      <div className="list-books-content">
+        <BookShelf books={books} bookshelf="Currently Reading" shelf="currentlyReading" updateBookShelf={updateBookShelf}/>
+        <BookShelf books={books} bookshelf="Want to Read" shelf="wantToRead" updateBookShelf={updateBookShelf}/>
+        <BookShelf books={books} bookshelf="Read" shelf="read" updateBookShelf={updateBookShelf}/>
+      </div>
     </div>
+    <div className="open-search">
+      <Link to="/search">
+        <button>Add a book</button>
+      </Link>
+    </div>
+  </>
   );
 }
 
